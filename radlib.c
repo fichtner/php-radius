@@ -497,9 +497,9 @@ rad_continue_send_request(struct rad_handle *h, int selected, int *fd,
 
 	if (selected) {
 		struct sockaddr_in from;
-		int fromlen;
+		socklen_t fromlen;
 
-		fromlen = sizeof from;
+		fromlen = sizeof(from);
 		h->resp_len = recvfrom(h->fd, h->response,
 		    MSGSIZE, MSG_WAITALL, (struct sockaddr *)&from, &fromlen);
 		if (h->resp_len == -1) {
@@ -748,7 +748,7 @@ rad_auth_open(void)
 
 	h = (struct rad_handle *)malloc(sizeof(struct rad_handle));
 	if (h != NULL) {
-		php_srand(time(NULL) * getpid() * (unsigned long) (php_combined_lcg(NULL) * 10000.0));
+		php_srand(time(NULL) * getpid() * (unsigned long) (php_combined_lcg() * 10000.0));
 		h->fd = -1;
 		h->num_servers = 0;
 		h->ident = php_rand();
@@ -1033,7 +1033,7 @@ rad_put_vendor_attr(struct rad_handle *h, int vendor, int type,
 	/* OK, allocate and start building the attribute. */
 	attr = emalloc(va_len);
 	if (attr == NULL) {
-		generr(h, "malloc failure (%d bytes)", va_len);
+		generr(h, "malloc failure (%zu bytes)", va_len);
 		goto end;
 	}
 
@@ -1216,12 +1216,12 @@ rad_demangle_mppe_key(struct rad_handle *h, const void *mangled, size_t mlen, u_
 	*/
 	*len = *P;
 	if (*len > mlen - 1) {
-		generr(h, "Mangled data seems to be garbage %d %d", *len, mlen-1);        
+		generr(h, "Mangled data seems to be garbage %zu %lu", *len, mlen-1);
 		return -1;
 	}
 
 	if (*len > MPPE_KEY_LEN) {
-		generr(h, "Key to long (%d) for me max. %d", *len, MPPE_KEY_LEN);        
+		generr(h, "Key to long (%zu) for me max. %d", *len, MPPE_KEY_LEN);
 		return -1;
 	}
 
@@ -1233,7 +1233,7 @@ int rad_salt_value(struct rad_handle *h, const char *in, size_t len, struct rad_
 {
 	char authenticator[16];
 	size_t i;
-	char intermediate[16];
+	unsigned char intermediate[16];
 	const char *in_pos;
 	MD5_CTX md5;
 	char *out_pos;
@@ -1273,7 +1273,7 @@ int rad_salt_value(struct rad_handle *h, const char *in, size_t len, struct rad_
 	memset(out->data, 0, out->len);
 
 	/* Grab the request authenticator. */
-	if (rad_request_authenticator(h, authenticator, sizeof authenticator) != sizeof authenticator) {
+	if (rad_request_authenticator(h, authenticator, sizeof(authenticator)) != sizeof(authenticator)) {
 		generr(h, "Cannot obtain the RADIUS request authenticator");
 		goto err;
 	}
@@ -1298,7 +1298,7 @@ int rad_salt_value(struct rad_handle *h, const char *in, size_t len, struct rad_
 	 * calls b1 first. */
 	MD5Init(&md5);
 	MD5Update(&md5, secret, strlen(secret));
-	MD5Update(&md5, authenticator, sizeof authenticator);
+	MD5Update(&md5, authenticator, sizeof(authenticator));
 	MD5Update(&md5, out->data, 2);
 	MD5Final(intermediate, &md5);
 
