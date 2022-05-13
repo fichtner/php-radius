@@ -65,6 +65,102 @@ static int _init_options(struct rad_attr_options *out, int options, int tag);
 ZEND_DECLARE_MODULE_GLOBALS(radius)
 */
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_auth_open, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_radius_acct_open arginfo_radius_auth_open
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_close, 0, 0, 1)
+	ZEND_ARG_INFO(0, "radius_handle")
+ZEND_END_ARG_INFO()
+
+#define arginfo_radius_strerror arginfo_radius_close
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_config, 0, 0, 2)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "file")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_add_server, 0, 0, 6)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "hostname")
+	ZEND_ARG_INFO(0, "port")
+	ZEND_ARG_INFO(0, "secret")
+	ZEND_ARG_INFO(0, "timeout")
+	ZEND_ARG_INFO(0, "max_tries")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_create_request, 0, 0, 2)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "type")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_put_string, 0, 0, 3)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "type")
+	ZEND_ARG_INFO(0, "value")
+	ZEND_ARG_INFO(0, "options")
+	ZEND_ARG_INFO(0, "tag")
+ZEND_END_ARG_INFO()
+
+#define arginfo_radius_put_int	arginfo_radius_put_string
+#define arginfo_radius_put_attr	arginfo_radius_put_string
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_put_addr, 0, 0, 3)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "type")
+	ZEND_ARG_INFO(0, "addr")
+	ZEND_ARG_INFO(0, "options")
+	ZEND_ARG_INFO(0, "tag")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_put_vendor_string, 0, 0, 4)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "vendor")
+	ZEND_ARG_INFO(0, "type")
+	ZEND_ARG_INFO(0, "value")
+	ZEND_ARG_INFO(0, "options")
+	ZEND_ARG_INFO(0, "tag")
+ZEND_END_ARG_INFO()
+
+#define arginfo_radius_put_vendor_int	arginfo_radius_put_vendor_string
+#define arginfo_radius_put_vendor_attr	arginfo_radius_put_vendor_string
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_put_vendor_addr, 0, 0, 4)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "vendor")
+	ZEND_ARG_INFO(0, "type")
+	ZEND_ARG_INFO(0, "addr")
+ZEND_END_ARG_INFO()
+
+#define arginfo_radius_send_request	arginfo_radius_close
+#define arginfo_radius_get_attr		arginfo_radius_close
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_get_tagged_attr_data, 0, 0, 1)
+	ZEND_ARG_INFO(0, "data")
+ZEND_END_ARG_INFO()
+
+#define arginfo_radius_get_tagged_attr_tag	arginfo_radius_get_tagged_attr_data
+#define arginfo_radius_get_vendor_attr		arginfo_radius_get_tagged_attr_data
+#define arginfo_radius_cvt_addr			arginfo_radius_get_tagged_attr_data
+#define arginfo_radius_cvt_int			arginfo_radius_get_tagged_attr_data
+#define arginfo_radius_cvt_string		arginfo_radius_get_tagged_attr_data
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_salt_encrypt_attr, 0, 0, 2)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "data")
+ZEND_END_ARG_INFO()
+
+#define arginfo_radius_request_authenticator	arginfo_radius_close
+#define arginfo_radius_server_secret		arginfo_radius_close
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_radius_demangle, 0, 0, 2)
+	ZEND_ARG_INFO(0, "radius_handle")
+	ZEND_ARG_INFO(0, "mangled")
+ZEND_END_ARG_INFO()
+
+#define arginfo_radius_demangle_mppe_key arginfo_radius_demangle
+
 /* True global resources - no need for thread safety here */
 static int le_radius;
 
@@ -73,34 +169,34 @@ static int le_radius;
  * Every user visible function must have an entry in radius_functions[].
  */
 zend_function_entry radius_functions[] = {
-	PHP_FE(radius_auth_open,    NULL)
-	PHP_FE(radius_acct_open,    NULL)
-	PHP_FE(radius_close,        NULL)
-	PHP_FE(radius_strerror,     NULL)
-	PHP_FE(radius_config,       NULL)
-	PHP_FE(radius_add_server,	NULL)
-	PHP_FE(radius_create_request,	NULL)
-	PHP_FE(radius_put_string,	NULL)
-	PHP_FE(radius_put_int,	NULL)
-	PHP_FE(radius_put_attr,	NULL)
-	PHP_FE(radius_put_addr,	NULL)
-	PHP_FE(radius_put_vendor_string,	NULL)
-	PHP_FE(radius_put_vendor_int,	NULL)
-	PHP_FE(radius_put_vendor_attr,	NULL)
-	PHP_FE(radius_put_vendor_addr,	NULL)
-	PHP_FE(radius_send_request,	NULL)
-	PHP_FE(radius_get_attr,	NULL)
-	PHP_FE(radius_get_tagged_attr_data, NULL)
-	PHP_FE(radius_get_tagged_attr_tag, NULL)
-	PHP_FE(radius_get_vendor_attr,	NULL)
-	PHP_FE(radius_cvt_addr,	NULL)
-	PHP_FE(radius_cvt_int,	NULL)
-	PHP_FE(radius_cvt_string,	NULL)
-	PHP_FE(radius_salt_encrypt_attr,	NULL)
-	PHP_FE(radius_request_authenticator,	NULL)
-	PHP_FE(radius_server_secret,	NULL)
-	PHP_FE(radius_demangle,	NULL)    
-	PHP_FE(radius_demangle_mppe_key,	NULL)    
+	PHP_FE(radius_auth_open,		arginfo_radius_auth_open)
+	PHP_FE(radius_acct_open,		arginfo_radius_acct_open)
+	PHP_FE(radius_close,			arginfo_radius_close)
+	PHP_FE(radius_strerror,			arginfo_radius_strerror)
+	PHP_FE(radius_config,			arginfo_radius_config)
+	PHP_FE(radius_add_server,		arginfo_radius_add_server)
+	PHP_FE(radius_create_request,		arginfo_radius_create_request)
+	PHP_FE(radius_put_string,		arginfo_radius_put_string)
+	PHP_FE(radius_put_int,			arginfo_radius_put_int)
+	PHP_FE(radius_put_attr,			arginfo_radius_put_attr)
+	PHP_FE(radius_put_addr,			arginfo_radius_put_addr)
+	PHP_FE(radius_put_vendor_string,	arginfo_radius_put_vendor_string)
+	PHP_FE(radius_put_vendor_int,		arginfo_radius_put_vendor_int)
+	PHP_FE(radius_put_vendor_attr,		arginfo_radius_put_vendor_attr)
+	PHP_FE(radius_put_vendor_addr,		arginfo_radius_put_vendor_addr)
+	PHP_FE(radius_send_request,		arginfo_radius_send_request)
+	PHP_FE(radius_get_attr,			arginfo_radius_get_attr)
+	PHP_FE(radius_get_tagged_attr_data,	arginfo_radius_get_tagged_attr_data)
+	PHP_FE(radius_get_tagged_attr_tag,	arginfo_radius_get_tagged_attr_tag)
+	PHP_FE(radius_get_vendor_attr,		arginfo_radius_get_vendor_attr)
+	PHP_FE(radius_cvt_addr,			arginfo_radius_cvt_addr)
+	PHP_FE(radius_cvt_int,			arginfo_radius_cvt_int)
+	PHP_FE(radius_cvt_string,		arginfo_radius_cvt_string)
+	PHP_FE(radius_salt_encrypt_attr,	arginfo_radius_salt_encrypt_attr)
+	PHP_FE(radius_request_authenticator,	arginfo_radius_request_authenticator)
+	PHP_FE(radius_server_secret,		arginfo_radius_server_secret)
+	PHP_FE(radius_demangle,			arginfo_radius_demangle)
+	PHP_FE(radius_demangle_mppe_key,	arginfo_radius_demangle_mppe_key)
 	{NULL, NULL, NULL}	/* Must be the last line in radius_functions[] */
 };
 /* }}} */
